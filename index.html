@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sorting Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+    <header>
+        <h2>Sorting Visualizer</h2>
+        <div id="slidercontainer">
+            <div class="slider">
+                <h4>Speed: </h4>
+                <input id="speedSelector" type="range" min="10" max="200" value="10"
+                    oninput="speedValue.innerText = this.value">
+                <p><span id="speedValue">10</span>ms</p>
+            </div>
+            <div class="slider">
+                <h4>size: </h4>
+                <input id="sizeSelector" type="range" min="10" max="180" value="50" oninput="genNewArr()">
+                <p><span id="sizeValue">50</span></p>
+            </div>
+        </div>
+    </header>
+    <div id="barcontainer">
+    </div>
+    <div id="buttoncontainer">
+        <div class="button" id="bubble" onclick="bubbleSort()">
+            <p>Bubble Sort</p>
+        </div>
+        <div class="button" id="merge" onclick="mergeSort()">
+            <p>Merge Sort</p>
+        </div>
+        <div class="button" id="insertion" onclick="insertionSort()">
+            <p>Insertion Sort</p>
+        </div>
+        <div class="button" id="selection" onclick="selectionSort()">
+            <p>Selection Sort</p>
+        </div>
+        <div class="button" id="generate" onclick="genNewArr()">
+            <p>Generate</p>
+        </div>
+    </div>
+    <script>
+        const container = document.querySelector("#barcontainer");
+        const genNewArr = () => {
+            const height = container.offsetHeight;
+            const size = document.querySelector("#sizeSelector").value;
+            document.querySelector("#sizeValue").innerText = size;
+            const arr = [];
+            container.innerHTML = '';
+            for (let i = 0; i < size; i++) {
+                arr.push(Math.floor(Math.random() * (height - 5 + 1) + 5));
+            }
+            arr.forEach(val => {
+                const ele = document.createElement('div');
+                ele.style.width = `${Math.floor(1200 / size)}px`;
+                ele.style.height = `${val}px`;
+                ele.style.margin = `1px`;
+                ele.style.boxShadow = "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px";
+                ele.style.backgroundColor = "#70e6e2";
+                container.appendChild(ele);
+            })
+        }
+        document.onload = genNewArr();
+
+        function timeout(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        //////BUBBLE SORT ALGO////////
+
+        const bubbleSort = async () => {
+            const arr = document.querySelectorAll("#barcontainer>div");
+            const speed = document.querySelector("#speedSelector").value;
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < (arr.length - i - 1); j++) {
+                    arr[j].style.backgroundColor = "#FFAEBC";
+                    arr[j + 1].style.backgroundColor = "#FFAEBC";
+                    if (arr[j].offsetHeight > arr[j + 1].offsetHeight) {
+                        var temp = arr[j].offsetHeight
+                        arr[j].style.height = arr[j + 1].offsetHeight + "px"
+                        arr[j + 1].style.height = temp + "px"
+                    }
+                    await timeout(speed);
+                    arr[j].style.backgroundColor = "#70e6e2";
+                    arr[j + 1].style.backgroundColor = "#70e6e2";
+                }
+            }
+        }
+
+        ///////MERGE SORT ALGO/////////
+
+        async function merge(arr, l, m, r, t) {
+            var n1 = m - l + 1;
+            var n2 = r - m;
+            var L = new Array(n1);
+            var R = new Array(n2);
+            for (var i = 0; i < n1; i++)
+                L[i] = arr[l + i].offsetHeight;
+            for (var j = 0; j < n2; j++)
+                R[j] = arr[m + 1 + j].offsetHeight;
+            var i = 0;
+            var j = 0;
+            var k = l;
+
+            while (i < n1 && j < n2) {
+                let temp = j;
+                arr[k].style.backgroundColor = "#FFAEBC";
+                arr[m + 1 + temp].style.backgroundColor = "#FFAEBC";
+                if (L[i] <= R[j]) {
+                    arr[k].style.height = L[i] + "px";
+                    i++;
+                }
+                else {
+                    arr[k].style.height = R[j] + "px";
+                    j++;
+                }
+                await timeout(t);
+                arr[k].style.backgroundColor = "#70e6e2";
+                arr[m + 1 + temp].style.backgroundColor = "#70e6e2";
+                k++;
+            }
+
+            while (i < n1) {
+                arr[k].style.height = L[i] + "px";
+                i++;
+                k++;
+                await timeout(t);
+            }
+
+            while (j < n2) {
+                arr[k].style.height = R[j] + "px";
+                j++;
+                k++;
+                await timeout(t);
+            }
+        }
+
+        const mergesorthelper = async (arr, l, r, t) => {
+            if (l >= r) {
+                return;
+            }
+            var m = l + Math.floor((r - l) / 2);
+            await mergesorthelper(arr, l, m, t);
+            await mergesorthelper(arr, m + 1, r, t);
+            await merge(arr, l, m, r, t);
+            await timeout(t);
+        }
+        const mergeSort = () => {
+            const arr = document.querySelectorAll("#barcontainer>div");
+            const speed = document.querySelector("#speedSelector").value;
+            mergesorthelper(arr, 0, arr.length - 1, speed);
+        }
+
+        /////INSERTION SORT ALGO////////
+
+        const insertionSort = async () => {
+            const arr = document.querySelectorAll("#barcontainer>div");
+            const speed = document.querySelector("#speedSelector").value;
+            for (let i = 1; i < arr.length; i++) {
+                let key = arr[i].offsetHeight;
+                let j = i - 1;
+                while (j >= 0 && arr[j].offsetHeight > key) {
+                    arr[j + 1].style.backgroundColor = "#FFAEBC";
+                    arr[j].style.backgroundColor = "#FFAEBC";
+                    arr[j + 1].style.height = arr[j].offsetHeight + "px";
+                    j = j - 1;
+                    await timeout(speed);
+                    arr[j + 2].style.backgroundColor = "#70e6e2";
+                    arr[j + 1].style.backgroundColor = "#70e6e2";
+                }
+                arr[j + 1].style.height = key + "px";
+            }
+        }
+
+        /////SELECTION SORT ALGO//////
+
+        const selectionSort = async () => {
+            const arr = document.querySelectorAll("#barcontainer>div");
+            const speed = document.querySelector("#speedSelector").value;
+            for (let i = 0; i < arr.length - 1; i++) {
+                let min_idx = i;
+                for (let j = i + 1; j < arr.length; j++) {
+                    arr[j].style.backgroundColor = "#FFAEBC";
+                    let temp_min = min_idx;
+                    arr[min_idx].style.backgroundColor = "#FFAEBC";
+                    if (arr[j].offsetHeight < arr[min_idx].offsetHeight)
+                        min_idx = j;
+                    await timeout(speed);
+                    arr[j].style.backgroundColor = "#70e6e2";
+                    arr[temp_min].style.backgroundColor = "#70e6e2";
+                }
+                let temp = arr[i].offsetHeight;
+                arr[i].style.height = arr[min_idx].offsetHeight + "px";
+                arr[min_idx].style.height = temp + "px";
+            }
+        }
+    </script>
+</body>
+
+</html>
